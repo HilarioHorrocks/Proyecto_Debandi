@@ -48,11 +48,12 @@ export default function Header({ onSearch }: HeaderProps) {
     <header className="bg-primary text-primary-foreground sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-2xl font-light">
-            <div className="w-8 h-8 bg-accent rounded flex items-center justify-center">
-              <span className="font-black">⚙</span>
-            </div>
-            <span className={playfairDisplay.className}>Debandi</span>
+          <Link href="/" className="flex items-center gap-2">
+            <img 
+              src="/logo-debandi.svg" 
+              alt="Debandi" 
+              className="h-12 w-auto"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -69,13 +70,13 @@ export default function Header({ onSearch }: HeaderProps) {
 
           <div className="hidden md:flex items-center gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60 text-foreground" />
               <input
                 type="text"
                 placeholder="Buscar productos..."
                 value={searchValue}
                 onChange={handleSearch}
-                className="bg-primary-foreground text-foreground pl-10 pr-4 py-2 rounded w-64 focus:outline-none focus:ring-2 focus:ring-accent"
+                className="bg-white text-foreground pl-10 pr-4 py-2 rounded w-64 focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <Link href="/cart" className="relative p-2 hover:bg-primary-foreground/10 rounded transition">
@@ -147,13 +148,13 @@ export default function Header({ onSearch }: HeaderProps) {
         {isMenuOpen && (
           <div className="md:hidden space-y-4 pb-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60 text-foreground" />
               <input
                 type="text"
                 placeholder="Buscar productos..."
                 value={searchValue}
                 onChange={handleSearch}
-                className="bg-primary-foreground text-foreground pl-10 pr-4 py-2 rounded w-full focus:outline-none"
+                className="bg-white text-foreground pl-10 pr-4 py-2 rounded w-full focus:outline-none"
               />
             </div>
             <nav className="flex flex-col gap-2">
