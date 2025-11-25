@@ -1,0 +1,109 @@
+"use client"
+
+import { useState } from "react"
+import { Star, ShoppingCart } from "lucide-react"
+
+interface ProductCardProps {
+  product: {
+    id: number
+    name: string
+    price: number
+    originalPrice?: number
+    image: string
+    rating: number
+    stock: number
+  }
+}
+
+export default function ProductCard({ product }: ProductCardProps) {
+  const [isAdding, setIsAdding] = useState(false)
+
+  const discount = product.originalPrice
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0
+
+  const addToCart = () => {
+    setIsAdding(true)
+
+    const cart = localStorage.getItem("cart")
+    const items = cart ? JSON.parse(cart) : []
+
+    const existingItem = items.find((item: any) => item.id === product.id)
+
+    if (existingItem) {
+      if (existingItem.quantity < product.stock) {
+        existingItem.quantity += 1
+      }
+    } else {
+      items.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+        stock: product.stock,
+      })
+    }
+
+    localStorage.setItem("cart", JSON.stringify(items))
+    window.dispatchEvent(new Event("storage"))
+
+    setTimeout(() => setIsAdding(false), 300)
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow group">
+      <div className="relative h-48 bg-muted overflow-hidden">
+        <img
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        {discount > 0 && (
+          <div className="absolute top-3 right-3 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-bold">
+            -{discount}%
+          </div>
+        )}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="text-white font-bold">Agotado</span>
+          </div>
+        )}
+      </div>
+
+      <div className="p-4">
+        <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
+
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`w-4 h-4 ${
+                  i < Math.floor(product.rating) ? "fill-accent text-accent" : "text-muted-foreground"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-sm text-muted-foreground">({product.rating})</span>
+        </div>
+
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-2xl font-bold text-foreground">${product.price.toFixed(2)}</span>
+          {product.originalPrice && (
+            <span className="text-sm text-muted-foreground line-through">${product.originalPrice.toFixed(2)}</span>
+          )}
+        </div>
+
+        <button
+          onClick={addToCart}
+          disabled={product.stock === 0 || isAdding}
+          className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ShoppingCart className="w-5 h-5" />
+          {isAdding ? "Agregando..." : "Agregar al Carrito"}
+        </button>
+      </div>
+    </div>
+  )
+}
