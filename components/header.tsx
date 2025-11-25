@@ -27,8 +27,10 @@ export default function Header({ onSearch }: HeaderProps) {
       const cart = localStorage.getItem("cart")
       if (cart) {
         const items = JSON.parse(cart)
-        const count = items.reduce((sum: number, item: any) => sum + item.quantity, 0)
-        setCartCount(count)
+        if (Array.isArray(items)) {
+          const count = items.reduce((sum: number, item: any) => sum + item.quantity, 0)
+          setCartCount(count)
+        }
       }
     }
 
@@ -45,7 +47,7 @@ export default function Header({ onSearch }: HeaderProps) {
   return (
     <header className="bg-primary text-primary-foreground sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-2xl font-light">
             <div className="w-8 h-8 bg-accent rounded flex items-center justify-center">
               <span className="font-black">⚙</span>
@@ -57,8 +59,8 @@ export default function Header({ onSearch }: HeaderProps) {
             <Link href="/" className="hover:opacity-80 transition">
               Inicio
             </Link>
-            <Link href="#" className="hover:opacity-80 transition">
-              Productos
+            <Link href="/listado" className="hover:opacity-80 transition">
+              Listado De Productos
             </Link>
             <Link href="#" className="hover:opacity-80 transition">
               Contacto
@@ -158,8 +160,8 @@ export default function Header({ onSearch }: HeaderProps) {
               <Link href="/" className="hover:opacity-80 transition py-2">
                 Inicio
               </Link>
-              <Link href="#" className="hover:opacity-80 transition py-2">
-                Productos
+              <Link href="/listado" className="hover:opacity-80 transition py-2">
+                Listado De Productos
               </Link>
               <Link href="#" className="hover:opacity-80 transition py-2">
                 Contacto

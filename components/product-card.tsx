@@ -26,7 +26,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     setIsAdding(true)
 
     const cart = localStorage.getItem("cart")
-    const items = cart ? JSON.parse(cart) : []
+    let items = cart ? JSON.parse(cart) : []
+    if (!Array.isArray(items)) {
+      items = []
+    }
 
     const existingItem = items.find((item: any) => item.id === product.id)
 

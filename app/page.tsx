@@ -11,6 +11,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [filters, setFilters] = useState<any>(null)
 
   const categories = [
     { id: "all", name: "Todos los productos" },
@@ -25,15 +26,7 @@ export default function Home() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const params = new URLSearchParams()
-        if (selectedCategory !== "all") {
-          params.append("category", selectedCategory)
-        }
-        if (searchQuery) {
-          params.append("search", searchQuery)
-        }
-
-        const res = await fetch(`/api/products?${params}`)
+        const res = await fetch(`/api/products`)
         const data = await res.json()
         setProducts(data.products)
       } catch (error) {
@@ -44,7 +37,44 @@ export default function Home() {
     }
 
     fetchProducts()
-  }, [selectedCategory, searchQuery])
+  }, [])
+
+  // Aplicar filtros a los productos
+  let filteredProducts = [...products]
+
+  if (selectedCategory !== "all") {
+    filteredProducts = filteredProducts.filter((p) => p.category === selectedCategory)
+  }
+
+  if (searchQuery) {
+    const searchLower = searchQuery.toLowerCase()
+    filteredProducts = filteredProducts.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchLower) ||
+        p.description.toLowerCase().includes(searchLower) ||
+        p.brand.toLowerCase().includes(searchLower)
+    )
+  }
+
+  if (filters) {
+    if (filters.brands.length > 0) {
+      filteredProducts = filteredProducts.filter((p) => filters.brands.includes(p.brand))
+    }
+
+    if (filters.categories.length > 0) {
+      filteredProducts = filteredProducts.filter((p) => filters.categories.includes(p.category))
+    }
+
+    if (filters.priceRange) {
+      filteredProducts = filteredProducts.filter(
+        (p) => p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]
+      )
+    }
+
+    if (filters.onlyStock) {
+      filteredProducts = filteredProducts.filter((p) => p.stock > 0)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -53,9 +83,11 @@ export default function Home() {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <FilterSidebar
+            products={products}
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
+            onFiltersChange={setFilters}
           />
 
           <div className="flex-1">
@@ -65,10 +97,10 @@ export default function Home() {
                   ? "Todos los Productos"
                   : categories.find((c) => c.id === selectedCategory)?.name}
               </h1>
-              <p className="text-muted-foreground mt-2">Mostrando {products.length} productos</p>
+              <p className="text-muted-foreground mt-2">Mostrando {filteredProducts.length} productos</p>
             </div>
 
-            <ProductGrid products={products} loading={loading} />
+            <ProductGrid products={filteredProducts} loading={loading} />
           </div>
         </div>
       </main>

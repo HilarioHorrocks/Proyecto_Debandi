@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { getSales } from "@/lib/sales"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,19 +26,41 @@ interface Product {
   brand: string
 }
 
+interface Sale {
+  id: string
+  productName: string
+  quantity: number
+  price: number
+  total: number
+  date: string
+}
+
 export default function AdminPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
+  const [sales, setSales] = useState<Sale[]>([])
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isCreating, setIsCreating] = useState(false)
   const [message, setMessage] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("")
+  const productsPerPage = 10
 
   useEffect(() => {
     if (!loading && (!user || !user.isAdmin)) {
       router.push("/")
     } else if (user?.isAdmin) {
       loadProducts()
+      loadSales()
+      
+      // Actualizar ventas en tiempo real
+      const handleSalesUpdate = () => {
+        loadSales()
+      }
+      
+      window.addEventListener("sales-updated", handleSalesUpdate)
+      return () => window.removeEventListener("sales-updated", handleSalesUpdate)
     }
   }, [user, loading, router])
 
@@ -46,8 +69,18 @@ export default function AdminPage() {
       const response = await fetch("/api/products")
       const data = await response.json()
       setProducts(data.products)
+      setCurrentPage(1) // Resetear a primera página
     } catch (error) {
       console.error("Error loading products:", error)
+    }
+  }
+
+  const loadSales = () => {
+    try {
+      const sales = getSales()
+      setSales(sales)
+    } catch (error) {
+      console.error("Error loading sales:", error)
     }
   }
 
@@ -109,6 +142,31 @@ export default function AdminPage() {
     }
   }
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  // Filtrar productos por búsqueda
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // Calcular paginación con productos filtrados
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+  const startIndex = (currentPage - 1) * productsPerPage
+  const endIndex = startIndex + productsPerPage
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex)
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Cargando...</div>
   }
@@ -134,16 +192,30 @@ export default function AdminPage() {
         <Tabs defaultValue="products">
           <TabsList>
             <TabsTrigger value="products">Productos</TabsTrigger>
-            <TabsTrigger value="stats">Estadísticas</TabsTrigger>
+            <TabsTrigger value="stats">Historial de Ventas</TabsTrigger>
           </TabsList>
 
           <TabsContent value="products" className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Gestión de Productos</h2>
               <Button onClick={() => setIsCreating(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nuevo Producto
               </Button>
+            </div>
+
+            {/* Buscador de productos */}
+            <div className="w-full">
+              <Input
+                type="text"
+                placeholder="Buscar por nombre, marca o categoría..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setCurrentPage(1) // Resetear a primera página cuando se busca
+                }}
+                className="w-full"
+              />
             </div>
 
             {(isCreating || editingProduct) && (
@@ -261,7 +333,7 @@ export default function AdminPage() {
             )}
 
             <div className="grid gap-4">
-              {products.map((product) => (
+              {paginatedProducts.map((product) => (
                 <Card key={product.id}>
                   <CardContent className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-4">
@@ -300,33 +372,81 @@ export default function AdminPage() {
                 </Card>
               ))}
             </div>
+
+            {/* Paginación */}
+            <div className="mt-6 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Mostrando {paginatedProducts.length > 0 ? startIndex + 1 : 0} a {Math.min(endIndex, filteredProducts.length)} de {filteredProducts.length} productos
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </Button>
+                <div className="flex items-center gap-2 px-3">
+                  <span className="text-sm font-medium">
+                    Página {currentPage} de {totalPages || 1}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                >
+                  Siguiente
+                </Button>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="stats">
             <Card>
               <CardHeader>
-                <CardTitle>Estadísticas</CardTitle>
-                <CardDescription>Resumen de la tienda</CardDescription>
+                <CardTitle>Historial de Ventas</CardTitle>
+                <CardDescription>Registro de todas las transacciones</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 border rounded">
-                    <p className="text-sm text-muted-foreground">Total Productos</p>
-                    <p className="text-2xl font-bold">{products.length}</p>
+                {sales.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">
+                    No hay ventas registradas aún
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="border-b">
+                        <tr>
+                          <th className="text-left py-3 px-4">Fecha</th>
+                          <th className="text-left py-3 px-4">Producto</th>
+                          <th className="text-right py-3 px-4">Cantidad</th>
+                          <th className="text-right py-3 px-4">Precio Unitario</th>
+                          <th className="text-right py-3 px-4">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sales.map((sale) => (
+                          <tr key={sale.id} className="border-b hover:bg-muted/50">
+                            <td className="py-3 px-4">{new Date(sale.date).toLocaleDateString()}</td>
+                            <td className="py-3 px-4">{sale.productName}</td>
+                            <td className="text-right py-3 px-4">{sale.quantity}</td>
+                            <td className="text-right py-3 px-4">${sale.price.toFixed(2)}</td>
+                            <td className="text-right py-3 px-4 font-semibold">${sale.total.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="p-4 border rounded">
-                    <p className="text-sm text-muted-foreground">Stock Total</p>
-                    <p className="text-2xl font-bold">
-                      {products.reduce((sum, p) => sum + p.stock, 0)}
-                    </p>
+                )}
+                {sales.length > 0 && (
+                  <div className="mt-6 p-4 bg-muted rounded-lg flex justify-between">
+                    <span className="font-semibold">Total de Ventas:</span>
+                    <span className="text-lg font-bold">
+                      ${sales.reduce((sum, sale) => sum + sale.total, 0).toFixed(2)}
+                    </span>
                   </div>
-                  <div className="p-4 border rounded">
-                    <p className="text-sm text-muted-foreground">Valor Inventario</p>
-                    <p className="text-2xl font-bold">
-                      ${products.reduce((sum, p) => sum + p.price * p.stock, 0).toFixed(2)}
-                    </p>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

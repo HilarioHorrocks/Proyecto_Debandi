@@ -15,7 +15,10 @@ export default function CartPage() {
   useEffect(() => {
     const savedCart = localStorage.getItem("cart")
     if (savedCart) {
-      setItems(JSON.parse(savedCart))
+      const parsed = JSON.parse(savedCart)
+      if (Array.isArray(parsed)) {
+        setItems(parsed)
+      }
     }
     setLoading(false)
   }, [])
