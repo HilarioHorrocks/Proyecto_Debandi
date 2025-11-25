@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { SignJWT } from "jose"
 
-// Simulación de base de datos - incluye un usuario admin por defecto
+// Simulación de base de datos - incluye usuarios por defecto
 const users = [
   {
     id: 1,
@@ -12,13 +12,25 @@ const users = [
     lastName: "Debandi",
     isAdmin: true,
     createdAt: new Date(),
+  },
+  {
+    id: 2,
+    email: "cliente@debandi.com",
+    passwordHash: "", // Se establecerá en la primera ejecución
+    firstName: "Cliente",
+    lastName: "Debandi",
+    isAdmin: false,
+    createdAt: new Date(),
   }
 ]
 
-// Inicializar contraseña del admin
-async function initAdminPassword() {
+// Inicializar contraseñas de usuarios por defecto
+async function initDefaultPasswords() {
   if (!users[0].passwordHash) {
     users[0].passwordHash = await bcrypt.hash("admin123", 10)
+  }
+  if (!users[1].passwordHash) {
+    users[1].passwordHash = await bcrypt.hash("cliente123", 10)
   }
 }
 
@@ -28,7 +40,7 @@ const JWT_SECRET = new TextEncoder().encode(
 
 export async function POST(request: NextRequest) {
   try {
-    await initAdminPassword()
+    await initDefaultPasswords()
     
     const body = await request.json()
     const { email, password } = body

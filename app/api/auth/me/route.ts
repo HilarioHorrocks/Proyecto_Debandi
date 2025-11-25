@@ -13,6 +13,13 @@ const users = [
     firstName: "Admin",
     lastName: "Debandi",
     isAdmin: true,
+  },
+  {
+    id: 2,
+    email: "cliente@debandi.com",
+    firstName: "Cliente",
+    lastName: "Debandi",
+    isAdmin: false,
   }
 ]
 

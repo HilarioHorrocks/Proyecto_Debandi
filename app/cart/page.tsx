@@ -1,18 +1,28 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import CartItems from "@/components/cart-items"
 import CartSummary from "@/components/cart-summary"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function CartPage() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
+    // Redirigir si no está logueado
+    if (!user) {
+      router.push("/")
+      return
+    }
+
     const savedCart = localStorage.getItem("cart")
     if (savedCart) {
       const parsed = JSON.parse(savedCart)
@@ -21,7 +31,7 @@ export default function CartPage() {
       }
     }
     setLoading(false)
-  }, [])
+  }, [user, router])
 
   const updateCart = (newItems: any) => {
     setItems(newItems)

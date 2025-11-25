@@ -48,13 +48,6 @@ export default function CartSummary({ items }: CartSummaryProps) {
         Proceder al Pago
       </Link>
 
-      <Link
-        href="/"
-        className="w-full mt-3 border border-border text-foreground py-3 rounded-lg hover:bg-muted transition text-center"
-      >
-        Continuar Comprando
-      </Link>
-
       {subtotal > 0 && subtotal <= 100 && (
         <p className="text-xs text-muted-foreground text-center mt-4 bg-muted p-2 rounded">
           Envío gratis al gastar más de $100

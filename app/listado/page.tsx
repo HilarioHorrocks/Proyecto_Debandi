@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
+import { useAuth } from "@/contexts/auth-context"
+import AuthModal from "@/components/auth-modal"
+import { exportToPDF, exportToExcel } from "@/lib/export-utils"
 
 interface Product {
   id: number
@@ -33,6 +36,29 @@ export default function ListadoProductos() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedProducts, setSelectedProducts] = useState<Map<number, SelectedProduct>>(new Map())
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const { user } = useAuth()
+
+  const handleExportPDF = async () => {
+    setIsExporting(true)
+    try {
+      await exportToPDF(products)
+    } catch (error) {
+      console.error("Error exporting to PDF:", error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const handleExportExcel = () => {
+    setIsExporting(true)
+    try {
+      exportToExcel(products)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -85,6 +111,12 @@ export default function ListadoProductos() {
   }
 
   const handleAddToCart = () => {
+    // Verificar si el usuario está logueado
+    if (!user) {
+      setShowAuthModal(true)
+      return
+    }
+
     // Obtener carrito existente
     const existingCart = localStorage.getItem("cart")
     let cartItems = existingCart ? JSON.parse(existingCart) : []
@@ -136,11 +168,31 @@ export default function ListadoProductos() {
       <Header onSearch={setSearchQuery} />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Listado De Productos</h1>
-          <p className="text-muted-foreground">
-            Selecciona los productos que deseas y agrega al carrito
-          </p>
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Listado De Productos</h1>
+            <p className="text-muted-foreground">
+              Selecciona los productos que deseas y agrega al carrito
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              onClick={handleExportPDF}
+              disabled={isExporting || products.length === 0}
+              variant="outline"
+              className="whitespace-nowrap"
+            >
+               Exportar PDF
+            </Button>
+            <Button
+              onClick={handleExportExcel}
+              disabled={isExporting || products.length === 0}
+              variant="outline"
+              className="whitespace-nowrap"
+            >
+             Exportar Excel
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -312,6 +364,8 @@ export default function ListadoProductos() {
       </main>
 
       <Footer />
+
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   )
 }

@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Star, ShoppingCart } from "lucide-react"
+import { useAuth } from "@/contexts/auth-context"
+import AuthModal from "./auth-modal"
 
 interface ProductCardProps {
   product: {
@@ -17,12 +19,20 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const { user } = useAuth()
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
 
   const addToCart = () => {
+    // Verificar si el usuario está logueado
+    if (!user) {
+      setShowAuthModal(true)
+      return
+    }
+
     setIsAdding(true)
 
     const cart = localStorage.getItem("cart")
@@ -107,6 +117,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           {isAdding ? "Agregando..." : "Agregar al Carrito"}
         </button>
       </div>
+
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   )
 }

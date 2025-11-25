@@ -108,6 +108,9 @@ export default function AuthModal({ onClose }: AuthModalProps) {
                   <div className="text-sm text-muted-foreground">
                     <p>Usuario admin: admin@debandi.com</p>
                     <p>Contraseña: admin123</p>
+                    <p>-------------------------------------------------------------------</p>
+                    <p>Usuario cliente: cliente@debandi.com</p>
+                    <p>Contraseña: cliente123</p>
                   </div>
                   <div className="flex gap-2">
                     <Button type="submit" className="flex-1" disabled={loading}>

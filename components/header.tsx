@@ -46,9 +46,9 @@ export default function Header({ onSearch }: HeaderProps) {
 
   return (
     <header className="bg-primary text-primary-foreground sticky top-0 z-50 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+      <div className="max-w-full px-4 py-4">
+        <div className="flex items-center justify-between gap-8">
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <img 
               src="/logo-debandi.svg" 
               alt="Debandi" 
@@ -56,7 +56,7 @@ export default function Header({ onSearch }: HeaderProps) {
             />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8 flex-1 justify-center">
             <Link href="/" className="hover:opacity-80 transition">
               Inicio
             </Link>
@@ -68,7 +68,7 @@ export default function Header({ onSearch }: HeaderProps) {
             </Link>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0 ml-auto">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60 text-foreground" />
               <input

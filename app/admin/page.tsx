@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
 import { getSales } from "@/lib/sales"
+import { exportToPDF, exportToExcel } from "@/lib/export-utils"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,7 +46,28 @@ export default function AdminPage() {
   const [message, setMessage] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isExporting, setIsExporting] = useState(false)
   const productsPerPage = 10
+
+  const handleExportPDF = async () => {
+    setIsExporting(true)
+    try {
+      await exportToPDF(products)
+    } catch (error) {
+      console.error("Error exporting to PDF:", error)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const handleExportExcel = () => {
+    setIsExporting(true)
+    try {
+      exportToExcel(products)
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   useEffect(() => {
     if (!loading && (!user || !user.isAdmin)) {
@@ -196,12 +218,30 @@ export default function AdminPage() {
           </TabsList>
 
           <TabsContent value="products" className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
               <h2 className="text-2xl font-semibold">Gestión de Productos</h2>
-              <Button onClick={() => setIsCreating(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Nuevo Producto
-              </Button>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  onClick={handleExportPDF}
+                  disabled={isExporting || products.length === 0}
+                  variant="outline"
+                  size="sm"
+                >
+                   Exportar PDF
+                </Button>
+                <Button
+                  onClick={handleExportExcel}
+                  disabled={isExporting || products.length === 0}
+                  variant="outline"
+                  size="sm"
+                >
+                   Exportar Excel
+                </Button>
+                <Button onClick={() => setIsCreating(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nuevo Producto
+                </Button>
+              </div>
             </div>
 
             {/* Buscador de productos */}

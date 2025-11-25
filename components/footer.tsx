@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="font-bold text-lg mb-4">ProTools</h3>
+            <h3 className="font-bold text-lg mb-4">Debandi</h3>
             <p className="text-sm opacity-75">Tu tienda de herramientas profesionales de confianza.</p>
           </div>
 
@@ -85,7 +85,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-secondary-foreground/20 pt-8 flex flex-col md:flex-row items-center justify-between text-sm">
-          <p>&copy; 2025 ProTools. Todos los derechos reservados.</p>
+          <p>&copy; 2025 - Hugo Lucero / Hilario Horrocks. Todos los derechos reservados.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="#" className="hover:opacity-75 transition">
               Privacidad
