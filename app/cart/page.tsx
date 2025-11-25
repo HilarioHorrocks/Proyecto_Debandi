@@ -141,14 +141,14 @@ export default function CartPage() {
                 disabled={isExporting}
                 variant="outline"
               >
-                📄 Exportar PDF
+                 Exportar PDF
               </Button>
               <Button
                 onClick={handleExportExcel}
                 disabled={isExporting}
                 variant="outline"
               >
-                📊 Exportar Excel
+                 Exportar Excel
               </Button>
             </div>
           </div>
