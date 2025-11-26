@@ -57,13 +57,13 @@ export default function Header({ onSearch }: HeaderProps) {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 flex-1 justify-center">
-            <Link href="/" className="hover:opacity-80 transition">
+            <Link href="/" className="px-3 py-2 hover:bg-primary-foreground/10 rounded transition">
               Inicio
             </Link>
-            <Link href="/listado" className="hover:opacity-80 transition">
+            <Link href="/listado" className="px-3 py-2 hover:bg-primary-foreground/10 rounded transition">
               Listado De Productos
             </Link>
-            <Link href="#" className="hover:opacity-80 transition">
+            <Link href="#" className="px-3 py-2 hover:bg-primary-foreground/10 rounded transition">
               Contacto
             </Link>
           </nav>
