@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Search, ShoppingCart, Menu, X, User, LogOut, Shield } from "lucide-react"
-import { playfairDisplay } from "@/lib/fonts"
+import { playfairDisplay, poppins } from "@/lib/fonts"
 import { useAuth } from "@/contexts/auth-context"
 import AuthModal from "./auth-modal"
 import { Button } from "./ui/button"
@@ -57,13 +57,13 @@ export default function Header({ onSearch }: HeaderProps) {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 flex-1 justify-center">
-            <Link href="/" className="px-3 py-2 hover:bg-primary-foreground/10 rounded transition">
+            <Link href="/" className={`px-3 py-2 hover:bg-primary-foreground/10 rounded transition ${poppins.className} text-sm font-medium`}>
               Inicio
             </Link>
-            <Link href="/listado" className="px-3 py-2 hover:bg-primary-foreground/10 rounded transition">
+            <Link href="/listado" className={`px-3 py-2 hover:bg-primary-foreground/10 rounded transition ${poppins.className} text-sm font-medium`}>
               Listado De Productos
             </Link>
-            <Link href="#" className="px-3 py-2 hover:bg-primary-foreground/10 rounded transition">
+            <Link href="#" className={`px-3 py-2 hover:bg-primary-foreground/10 rounded transition ${poppins.className} text-sm font-medium`}>
               Contacto
             </Link>
           </nav>
