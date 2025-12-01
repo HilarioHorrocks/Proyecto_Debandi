@@ -3,13 +3,17 @@
 import { useState } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import AuthModal from "@/components/auth-modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/contexts/auth-context"
 import { Phone, Mail, MapPin, MessageCircle, Truck, Users, Headphones, CreditCard } from "lucide-react"
 import NotificationToast from "@/components/notification-toast"
 
 export default function ContactPage() {
+  const { user } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -30,6 +34,12 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Verificar si el usuario está autenticado
+    if (!user) {
+      setShowAuthModal(true)
+      return
+    }
     
     // Validar campos
     if (!formData.nombre || !formData.email || !formData.mensaje) {
@@ -293,11 +303,14 @@ export default function ContactPage() {
       {/* Notificación */}
       <NotificationToast
         message={notificationMessage}
-        type={notificationMessage.includes("error") ? "error" : "success"}
+        type={notificationMessage.includes("error") || notificationMessage.includes("debes") ? "error" : "success"}
         isOpen={showNotification}
         onClose={() => setShowNotification(false)}
         duration={3000}
       />
+
+      {/* Modal de autenticación */}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   )
 }
