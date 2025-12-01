@@ -183,7 +183,7 @@ export default function Header({ onSearch }: HeaderProps) {
               <Link href="/listado" className="hover:opacity-80 transition py-2">
                 Listado De Productos
               </Link>
-              <Link href="#" className="hover:opacity-80 transition py-2">
+              <Link href="/contacto" className="hover:opacity-80 transition py-2">
                 Contacto
               </Link>
             </nav>

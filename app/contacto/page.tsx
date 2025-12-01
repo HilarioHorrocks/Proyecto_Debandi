@@ -73,56 +73,56 @@ export default function ContactPage() {
 
       <main className="flex-1">
         {/* Sección de información de contacto */}
-        <section className="bg-gradient-to-b from-primary/5 to-transparent py-12">
+        <section className="bg-gradient-to-b from-primary/5 to-transparent py-8 sm:py-12">
           <div className="max-w-7xl mx-auto px-4">
-            <h1 className="text-4xl font-bold text-center mb-4 text-foreground">Contacto</h1>
-            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4 text-foreground">Contacto</h1>
+            <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-12 text-sm sm:text-base">
               ¿Tienes preguntas o necesitas ayuda? Estamos aquí para asistirte. Contáctanos a través de cualquiera de nuestros canales.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {/* Teléfono */}
-              <div className="bg-white border border-border rounded-lg p-6 text-center hover:shadow-lg transition">
-                <Phone className="w-8 h-8 mx-auto mb-3 text-primary" />
-                <h3 className="font-semibold text-foreground mb-2">Teléfono</h3>
+              <div className="bg-white border border-border rounded-lg p-4 sm:p-6 text-center hover:shadow-lg transition">
+                <Phone className="w-6 sm:w-8 h-6 sm:h-8 mx-auto mb-2 sm:mb-3 text-primary" />
+                <h3 className="font-semibold text-foreground mb-2 text-sm sm:text-base">Teléfono</h3>
                 <a
                   href="tel:+5493584110859"
-                  className="text-primary hover:underline text-sm"
+                  className="text-primary hover:underline text-xs sm:text-sm"
                 >
                   +54 9 3584 11-0859
                 </a>
               </div>
 
               {/* Email */}
-              <div className="bg-white border border-border rounded-lg p-6 text-center hover:shadow-lg transition">
-                <Mail className="w-8 h-8 mx-auto mb-3 text-primary" />
-                <h3 className="font-semibold text-foreground mb-2">Email</h3>
+              <div className="bg-white border border-border rounded-lg p-4 sm:p-6 text-center hover:shadow-lg transition">
+                <Mail className="w-6 sm:w-8 h-6 sm:h-8 mx-auto mb-2 sm:mb-3 text-primary" />
+                <h3 className="font-semibold text-foreground mb-2 text-sm sm:text-base">Email</h3>
                 <a
                   href="mailto:debandidistribuciones@hotmail.com"
-                  className="text-primary hover:underline text-sm break-all"
+                  className="text-primary hover:underline text-xs sm:text-sm break-all"
                 >
                   debandidistribuciones@hotmail.com
                 </a>
               </div>
 
               {/* Ubicación */}
-              <div className="bg-white border border-border rounded-lg p-6 text-center hover:shadow-lg transition">
-                <MapPin className="w-8 h-8 mx-auto mb-3 text-primary" />
-                <h3 className="font-semibold text-foreground mb-2">Ubicación</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-white border border-border rounded-lg p-4 sm:p-6 text-center hover:shadow-lg transition">
+                <MapPin className="w-6 sm:w-8 h-6 sm:h-8 mx-auto mb-2 sm:mb-3 text-primary" />
+                <h3 className="font-semibold text-foreground mb-2 text-sm sm:text-base">Ubicación</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Pasaje Aguirre 81 - Río Cuarto / Córdoba
                 </p>
               </div>
 
               {/* WhatsApp */}
-              <div className="bg-white border border-border rounded-lg p-6 text-center hover:shadow-lg transition">
-                <MessageCircle className="w-8 h-8 mx-auto mb-3 text-primary" />
-                <h3 className="font-semibold text-foreground mb-2">WhatsApp</h3>
+              <div className="bg-white border border-border rounded-lg p-4 sm:p-6 text-center hover:shadow-lg transition">
+                <MessageCircle className="w-6 sm:w-8 h-6 sm:h-8 mx-auto mb-2 sm:mb-3 text-primary" />
+                <h3 className="font-semibold text-foreground mb-2 text-sm sm:text-base">WhatsApp</h3>
                 <a
                   href="https://wa.me/5493584110859"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline text-sm"
+                  className="text-primary hover:underline text-xs sm:text-sm"
                 >
                   3584110859
                 </a>
@@ -132,12 +132,12 @@ export default function ContactPage() {
         </section>
 
         {/* Sección de formulario y mapa */}
-        <section className="py-16">
+        <section className="py-8 sm:py-16">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12">
               {/* Formulario */}
               <div>
-                <h2 className="text-3xl font-bold mb-6 text-foreground">¡Déjanos tu consulta!</h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 text-foreground">¡Déjanos tu consulta!</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Input
                     type="text"
@@ -184,7 +184,7 @@ export default function ContactPage() {
               </div>
 
               {/* Mapa */}
-              <div className="rounded-lg overflow-hidden shadow-lg h-96 lg:h-auto">
+              <div className="rounded-lg overflow-hidden shadow-lg h-72 sm:h-96 lg:h-auto">
                 <iframe
                   width="100%"
                   height="100%"
@@ -201,18 +201,18 @@ export default function ContactPage() {
         </section>
 
         {/* Sección de horarios (opcional) */}
-        <section className="py-16 bg-white">
+        <section className="py-8 sm:py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col items-center gap-12">
+            <div className="flex flex-col items-center gap-8 sm:gap-12">
               <div className="text-center">
-                <h2 className="text-3xl font-light text-foreground mb-2">Horarios de Atención</h2>
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-light text-foreground mb-2">Horarios de Atención</h2>
                 <div className="w-12 h-1 bg-primary mx-auto mt-4"></div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-3xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full max-w-3xl">
                 <div className="flex flex-col items-center text-center">
-                  <h3 className="font-light text-lg text-foreground mb-3">Lunes a Viernes</h3>
-                  <p className="text-sm text-muted-foreground font-light">9:00 AM - 6:00 PM</p>
+                  <h3 className="font-light text-base sm:text-lg text-foreground mb-2 sm:mb-3">Lunes a Viernes</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-light">9:00 AM - 6:00 PM</p>
                 </div>
                 
                 <div className="hidden md:flex items-center justify-center">
@@ -220,8 +220,8 @@ export default function ContactPage() {
                 </div>
                 
                 <div className="flex flex-col items-center text-center">
-                  <h3 className="font-light text-lg text-foreground mb-3">Sábado</h3>
-                  <p className="text-sm text-muted-foreground font-light">9:00 AM - 1:00 PM</p>
+                  <h3 className="font-light text-base sm:text-lg text-foreground mb-2 sm:mb-3">Sábado</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-light">9:00 AM - 1:00 PM</p>
                 </div>
                 
                 <div className="hidden md:flex items-center justify-center">
@@ -229,8 +229,8 @@ export default function ContactPage() {
                 </div>
                 
                 <div className="flex flex-col items-center text-center">
-                  <h3 className="font-light text-lg text-foreground mb-3">Domingo</h3>
-                  <p className="text-sm text-muted-foreground font-light">Cerrado</p>
+                  <h3 className="font-light text-base sm:text-lg text-foreground mb-2 sm:mb-3">Domingo</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground font-light">Cerrado</p>
                 </div>
               </div>
             </div>
@@ -248,49 +248,49 @@ export default function ContactPage() {
       </main>
 
       {/* Sección de características/beneficios */}
-      <section className="bg-gradient-to-b from-white to-muted/30 py-16">
+      <section className="bg-gradient-to-b from-white to-muted/30 py-8 sm:py-16">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {/* Envíos a Domicilio */}
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-6 hover:border-primary transition">
-                <Truck className="w-10 h-10 text-primary/60 hover:text-primary transition" />
+              <div className="w-16 sm:w-24 h-16 sm:h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-3 sm:mb-6 hover:border-primary transition">
+                <Truck className="w-8 sm:w-10 h-8 sm:h-10 text-primary/60 hover:text-primary transition" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Envíos a Domicilio.</h3>
-              <p className="text-sm text-muted-foreground font-light">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">Envíos a Domicilio.</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-light">
                 <a href="#" className="text-primary hover:underline">Consultar</a>
               </p>
             </div>
 
             {/* Atención Personalizada */}
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-6 hover:border-primary transition">
-                <Users className="w-10 h-10 text-primary/60 hover:text-primary transition" />
+              <div className="w-16 sm:w-24 h-16 sm:h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-3 sm:mb-6 hover:border-primary transition">
+                <Users className="w-8 sm:w-10 h-8 sm:h-10 text-primary/60 hover:text-primary transition" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Atención Personalizada</h3>
-              <p className="text-sm text-muted-foreground font-light">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">Atención Personalizada</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-light">
                 Personal capacitado para atender sus consultas.
               </p>
             </div>
 
             {/* Atención Telefónica */}
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-6 hover:border-primary transition">
-                <Headphones className="w-10 h-10 text-primary/60 hover:text-primary transition" />
+              <div className="w-16 sm:w-24 h-16 sm:h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-3 sm:mb-6 hover:border-primary transition">
+                <Headphones className="w-8 sm:w-10 h-8 sm:h-10 text-primary/60 hover:text-primary transition" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Atención Telefónica</h3>
-              <p className="text-sm text-muted-foreground font-light">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">Atención Telefónica</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-light">
                 Comuníquese con nosotros.
               </p>
             </div>
 
             {/* Pagos Seguros */}
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-6 hover:border-primary transition">
-                <CreditCard className="w-10 h-10 text-primary/60 hover:text-primary transition" />
+              <div className="w-16 sm:w-24 h-16 sm:h-24 rounded-full border-2 border-primary/20 flex items-center justify-center mb-3 sm:mb-6 hover:border-primary transition">
+                <CreditCard className="w-8 sm:w-10 h-8 sm:h-10 text-primary/60 hover:text-primary transition" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Pagos Seguros</h3>
-              <p className="text-sm text-muted-foreground font-light">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">Pagos Seguros</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground font-light">
                 Compre con tranquilidad
               </p>
             </div>
