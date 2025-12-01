@@ -105,9 +105,16 @@ export default function AdminPage() {
         ? `/api/admin/products/${editingProduct.id}`
         : "/api/admin/products"
       
+      const token = localStorage.getItem("auth-token")
+      console.log("Guardando producto:", { editingProduct, url, productData, token: token ? "present" : "missing" })
+      
       const response = await fetch(url, {
         method: editingProduct ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        credentials: "include",
         body: JSON.stringify(productData),
       })
 
@@ -128,8 +135,13 @@ export default function AdminPage() {
     if (!confirm("¿Estás seguro de eliminar este producto?")) return
 
     try {
+      const token = localStorage.getItem("auth-token")
       const response = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
+        headers: {
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        credentials: "include",
       })
 
       if (response.ok) {
@@ -219,15 +231,26 @@ export default function AdminPage() {
             </div>
 
             {(isCreating || editingProduct) && (
-              <Card>
-                <CardHeader>
+              <Card className="sticky top-0 z-40 mb-4">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                   <CardTitle>
                     {editingProduct ? "Editar Producto" : "Crear Nuevo Producto"}
                   </CardTitle>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setEditingProduct(null)
+                      setIsCreating(false)
+                    }}
+                  >
+                    ✕
+                  </Button>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSaveProduct} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <form onSubmit={handleSaveProduct} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Nombre</Label>
                         <Input
@@ -309,7 +332,7 @@ export default function AdminPage() {
                             variant="outline"
                             onClick={() => document.getElementById("imageFile")?.click()}
                           >
-                            Elegir archivo
+                            Elegir
                           </Button>
                           <input
                             id="imageFile"
@@ -342,8 +365,10 @@ export default function AdminPage() {
                         required
                       />
                     </div>
-                    <div className="flex gap-2">
-                      <Button type="submit">Guardar</Button>
+                    <div className="flex gap-2 sticky bottom-0 pt-4 bg-white">
+                      <Button type="submit" className="flex-1">
+                        {editingProduct ? "Actualizar" : "Guardar"}
+                      </Button>
                       <Button
                         type="button"
                         variant="outline"
@@ -351,6 +376,7 @@ export default function AdminPage() {
                           setEditingProduct(null)
                           setIsCreating(false)
                         }}
+                        className="flex-1"
                       >
                         Cancelar
                       </Button>

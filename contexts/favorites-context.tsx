@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useEffect } from "react"
+import { useAuth } from "./auth-context"
 
 interface FavoritesContextType {
   favorites: number[]
@@ -15,27 +16,51 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<number[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const { user } = useAuth()
 
-  // Cargar favoritos del localStorage al montar
+  // Cargar favoritos del usuario actual
   useEffect(() => {
-    const storedFavorites = localStorage.getItem("favorites")
-    if (storedFavorites) {
-      try {
-        setFavorites(JSON.parse(storedFavorites))
-      } catch (error) {
-        console.error("Error loading favorites:", error)
+    const loadFavorites = () => {
+      if (!user) {
+        // Sin usuario: no cargar favoritos
+        setFavorites([])
+      } else {
+        // Con usuario: cargar favoritos específicos del usuario
+        const userFavKey = `favorites_user_${user.id}`
+        const storedFavorites = localStorage.getItem(userFavKey)
+        if (storedFavorites) {
+          try {
+            setFavorites(JSON.parse(storedFavorites))
+          } catch (error) {
+            console.error("Error loading favorites:", error)
+            setFavorites([])
+          }
+        } else {
+          setFavorites([])
+        }
       }
+      setIsLoaded(true)
     }
-    setIsLoaded(true)
+    loadFavorites()
+  }, [user])
+
+  // Escuchar evento de limpieza de favoritos
+  useEffect(() => {
+    const handleFavoritesClear = () => {
+      setFavorites([])
+    }
+    window.addEventListener("favorites-cleared", handleFavoritesClear)
+    return () => window.removeEventListener("favorites-cleared", handleFavoritesClear)
   }, [])
 
   // Guardar favoritos en localStorage cuando cambien
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("favorites", JSON.stringify(favorites))
+    if (isLoaded && user) {
+      const userFavKey = `favorites_user_${user.id}`
+      localStorage.setItem(userFavKey, JSON.stringify(favorites))
       window.dispatchEvent(new CustomEvent("favorites-updated", { detail: favorites }))
     }
-  }, [favorites, isLoaded])
+  }, [favorites, isLoaded, user])
 
   const addFavorite = (productId: number) => {
     setFavorites((prev) => {

@@ -56,6 +56,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const data = await response.json()
     setUser(data.user)
+    // Guardar token en localStorage
+    if (data.token) {
+      localStorage.setItem("auth-token", data.token)
+    }
   }
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
@@ -77,6 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" })
     setUser(null)
+    localStorage.removeItem("auth-token")
+    // Limpiar favoritos al cerrar sesión
+    localStorage.removeItem("favorites")
+    window.dispatchEvent(new CustomEvent("favorites-cleared"))
   }
 
   return (

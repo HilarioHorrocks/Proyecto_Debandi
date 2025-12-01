@@ -76,22 +76,22 @@ export default function FeaturedCarousel({ products, loading }: FeaturedCarousel
     : 0
 
   return (
-    <div className="w-full bg-gradient-to-b from-background to-muted/30 py-12 mb-8">
+    <div className="w-full bg-gradient-to-b from-background to-muted/30 py-6 md:py-12 mb-6 md:mb-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between gap-8 bg-white rounded-lg shadow-lg p-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 bg-white rounded-lg shadow-lg p-4 md:p-8">
           {/* Flecha izquierda */}
           <button
             onClick={prevSlide}
-            className="flex-shrink-0 p-3 hover:bg-gray-100 rounded-full transition-all duration-300 ease-in-out hover:scale-110"
+            className="hidden md:flex flex-shrink-0 p-3 hover:bg-gray-100 rounded-full transition-all duration-300 ease-in-out hover:scale-110"
             aria-label="Anterior"
           >
             <ChevronLeft className="w-6 h-6 text-gray-700 transition-all duration-300" />
           </button>
 
           {/* Contenido del carrusel */}
-          <div className="flex-1 flex items-center gap-12 overflow-hidden">
+          <div className="flex-1 w-full flex flex-col md:flex-row items-center gap-4 md:gap-12 overflow-hidden">
             {/* Imagen con efecto deslizante */}
-            <div className="w-1/3 relative">
+            <div className="w-full md:w-1/3 relative">
               <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 {discount > 0 && (
                   <Badge className="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1 z-10">
@@ -118,29 +118,29 @@ export default function FeaturedCarousel({ products, loading }: FeaturedCarousel
             </div>
 
             {/* Información */}
-            <div className="flex-1 space-y-4 overflow-hidden">
+            <div className="flex-1 w-full space-y-3 md:space-y-4 overflow-hidden">
               <div className={`transition-all duration-700 ease-in-out`}>
-                <p className="text-sm text-muted-foreground uppercase tracking-wide">Producto Destacado</p>
-                <h2 className="text-3xl font-bold text-foreground">{currentProduct.name}</h2>
+                <p className="text-xs md:text-sm text-muted-foreground uppercase tracking-wide">Producto Destacado</p>
+                <h2 className="text-xl md:text-3xl font-bold text-foreground line-clamp-2">{currentProduct.name}</h2>
               </div>
 
-              <p className={`text-muted-foreground transition-all duration-700 ease-in-out`}>{currentProduct.description}</p>
+              <p className={`text-sm md:text-base text-muted-foreground transition-all duration-700 ease-in-out line-clamp-2`}>{currentProduct.description}</p>
 
               <div className={`flex items-baseline gap-3 transition-all duration-700 ease-in-out`}>
-                <span className="text-4xl font-bold text-primary">
+                <span className="text-2xl md:text-4xl font-bold text-primary">
                   ${currentProduct.price.toFixed(2)}
                 </span>
                 {currentProduct.originalPrice && (
-                  <span className="text-lg text-muted-foreground line-through">
+                  <span className="text-sm md:text-lg text-muted-foreground line-through">
                     ${currentProduct.originalPrice.toFixed(2)}
                   </span>
                 )}
               </div>
 
-              <p className={`text-sm text-muted-foreground transition-all duration-700 ease-in-out`}>{currentProduct.brand}</p>
+              <p className={`text-xs md:text-sm text-muted-foreground transition-all duration-700 ease-in-out`}>{currentProduct.brand}</p>
 
               <Link href={`/listado#${currentProduct.slug}`}>
-                <Button className="bg-primary hover:bg-primary/90 transition-all duration-300">Ver Más</Button>
+                <Button className="w-full md:w-auto bg-primary hover:bg-primary/90 transition-all duration-300 text-sm md:text-base">Ver Más</Button>
               </Link>
             </div>
           </div>
@@ -148,15 +148,50 @@ export default function FeaturedCarousel({ products, loading }: FeaturedCarousel
           {/* Flecha derecha */}
           <button
             onClick={nextSlide}
-            className="flex-shrink-0 p-3 hover:bg-gray-100 rounded-full transition-all duration-300 ease-in-out hover:scale-110"
+            className="hidden md:flex flex-shrink-0 p-3 hover:bg-gray-100 rounded-full transition-all duration-300 ease-in-out hover:scale-110"
             aria-label="Siguiente"
           >
             <ChevronRight className="w-6 h-6 text-gray-700 transition-all duration-300" />
           </button>
         </div>
 
-        {/* Indicadores */}
-        <div className="flex justify-center gap-3 mt-6">
+        {/* Flechas móviles */}
+        <div className="md:hidden flex justify-between items-center mt-4 gap-2">
+          <button
+            onClick={prevSlide}
+            className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-full transition-all duration-300 ease-in-out hover:scale-110"
+            aria-label="Anterior"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700 transition-all duration-300" />
+          </button>
+          
+          <div className="flex justify-center gap-2 flex-1">
+            {featuredProducts.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setLastInteraction(Date.now())
+                  setCurrentSlide(index)
+                }}
+                className={`h-2 rounded-full transition-all duration-500 ease-in-out ${
+                  index === currentSlide ? "bg-primary w-6 shadow-lg" : "bg-gray-300 w-2 hover:bg-gray-400"
+                }`}
+                aria-label={`Slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={nextSlide}
+            className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-full transition-all duration-300 ease-in-out hover:scale-110"
+            aria-label="Siguiente"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700 transition-all duration-300" />
+          </button>
+        </div>
+
+        {/* Indicadores desktop */}
+        <div className="hidden md:flex justify-center gap-3 mt-6">
           {featuredProducts.map((_, index) => (
             <button
               key={index}

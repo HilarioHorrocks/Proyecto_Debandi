@@ -67,6 +67,21 @@ export default function ProductCard({ product }: ProductCardProps) {
     setTimeout(() => setIsAdding(false), 300)
   }
 
+  const toggleFavorite = () => {
+    // Verificar si el usuario está logueado
+    if (!user) {
+      setShowAuthModal(true)
+      return
+    }
+
+    // Si está logueado, agregar o quitar de favoritos
+    if (favorite) {
+      removeFavorite(product.id)
+    } else {
+      addFavorite(product.id)
+    }
+  }
+
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
       <div className="relative h-48 bg-muted overflow-hidden">
@@ -81,9 +96,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         <button
-          onClick={() => (favorite ? removeFavorite(product.id) : addFavorite(product.id))}
+          onClick={toggleFavorite}
           className="absolute top-3 left-3 bg-white rounded-full p-2 hover:bg-red-50 transition"
-          title={favorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+          title={!user ? "Inicia sesión para agregar a favoritos" : favorite ? "Quitar de favoritos" : "Agregar a favoritos"}
         >
           <Heart className={`w-5 h-5 ${favorite ? "fill-red-500 text-red-500" : "text-gray-400 hover:text-red-500"}`} />
         </button>

@@ -25,12 +25,12 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`font-sans antialiased`}>
-        <FavoritesProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <FavoritesProvider>
             {children}
             <Toaster />
-          </AuthProvider>
-        </FavoritesProvider>
+          </FavoritesProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

@@ -128,18 +128,30 @@ let PRODUCTS = [
 
 async function verifyAdmin(request: NextRequest) {
   try {
-    const token = request.cookies.get("auth-token")?.value
+    // Intentar leer el token de dos lugares: cookie o header Authorization
+    let token = request.cookies.get("auth-token")?.value
+    
+    if (!token) {
+      const authHeader = request.headers.get("Authorization")
+      if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.substring(7)
+      }
+    }
+    
     if (!token) {
       return { isAdmin: false, error: "No autenticado" }
     }
 
     const { payload } = await jwtVerify(token, JWT_SECRET)
-    if (!payload.isAdmin) {
+    const isAdmin = (payload as any).isAdmin === true
+    
+    if (!isAdmin) {
       return { isAdmin: false, error: "No autorizado" }
     }
 
     return { isAdmin: true }
   } catch (error) {
+    console.error("Token verification error:", error)
     return { isAdmin: false, error: "Token inválido" }
   }
 }
