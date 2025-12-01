@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Star, ShoppingCart } from "lucide-react"
+import { Star, ShoppingCart, Heart } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
+import { useFavorites } from "@/contexts/favorites-context"
 import AuthModal from "./auth-modal"
 
 interface ProductCardProps {
@@ -21,6 +22,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { user } = useAuth()
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites()
+  const favorite = isFavorite(product.id)
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -65,7 +68,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow group">
+    <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
       <div className="relative h-48 bg-muted overflow-hidden">
         <img
           src={product.image || "/placeholder.svg"}
@@ -77,6 +80,13 @@ export default function ProductCard({ product }: ProductCardProps) {
             -{discount}%
           </div>
         )}
+        <button
+          onClick={() => (favorite ? removeFavorite(product.id) : addFavorite(product.id))}
+          className="absolute top-3 left-3 bg-white rounded-full p-2 hover:bg-red-50 transition"
+          title={favorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+        >
+          <Heart className={`w-5 h-5 ${favorite ? "fill-red-500 text-red-500" : "text-gray-400 hover:text-red-500"}`} />
+        </button>
         {product.stock === 0 && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="text-white font-bold">Agotado</span>
@@ -84,7 +94,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-grow">
         <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
 
         <div className="flex items-center gap-2 mb-3">
@@ -111,7 +121,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <button
           onClick={addToCart}
           disabled={product.stock === 0 || isAdding}
-          className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-primary-foreground py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
         >
           <ShoppingCart className="w-5 h-5" />
           {isAdding ? "Agregando..." : "Agregar al Carrito"}

@@ -81,6 +81,8 @@ export default function CartPage() {
   const updateCart = (newItems: any) => {
     setItems(newItems)
     localStorage.setItem("cart", JSON.stringify(newItems))
+    // Disparar evento para actualizar el navbar
+    window.dispatchEvent(new Event("storage"))
   }
 
   if (loading) {

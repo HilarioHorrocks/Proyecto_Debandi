@@ -45,7 +45,7 @@ export default function CartSummary({ items }: CartSummaryProps) {
         href="/checkout"
         className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:opacity-90 transition font-semibold block text-center"
       >
-        Proceder al Pago
+        Realizar Pedido
       </Link>
 
       {subtotal > 0 && subtotal <= 100 && (

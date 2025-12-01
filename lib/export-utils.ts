@@ -12,7 +12,7 @@ interface Product {
   brand: string
 }
 
-export const exportToPDF = async (products: Product[]) => {
+export const exportToPDF = async (products: Product[], fileName: string = "listado-productos-debandi") => {
   try {
     const doc = new jsPDF({
       orientation: "landscape",
@@ -146,7 +146,7 @@ export const exportToPDF = async (products: Product[]) => {
       )
     }
 
-    doc.save("listado-productos-debandi.pdf")
+    doc.save(`${fileName}.pdf`)
   } catch (error) {
     console.error("Error exporting to PDF:", error)
     throw error

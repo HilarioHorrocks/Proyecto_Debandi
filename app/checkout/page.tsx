@@ -26,6 +26,59 @@ export default function CheckoutPage() {
   const [showDetails, setShowDetails] = useState(false)
   const [total, setTotal] = useState(0)
   const [purchaseDate, setPurchaseDate] = useState<Date | null>(null)
+  const [orderSaved, setOrderSaved] = useState(false)
+
+  // Función para guardar la orden
+  const saveOrder = (items: CartItem[], date: Date, total: number, orderNum: string) => {
+    console.log("=== CHECKOUT: Guardando orden automáticamente ===")
+    console.log("cartItems.length:", items.length)
+    console.log("purchaseDate:", date)
+    
+    if (items.length > 0 && date) {
+      const newOrder = {
+        id: `order-${Date.now()}`,
+        orderNumber: orderNum,
+        date: date.toISOString(),
+        total,
+        status: "completada",
+        items: items.map((item) => ({
+          productId: item.id,
+          productName: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          image: item.image,
+        })),
+      }
+
+      console.log("Nueva orden creada:", newOrder)
+
+      // Obtener órdenes existentes
+      const existingOrders = localStorage.getItem("user-orders")
+      console.log("Órdenes existentes en localStorage:", existingOrders)
+      
+      const orders = existingOrders ? JSON.parse(existingOrders) : []
+      console.log("Órdenes parseadas:", orders)
+      
+      // Agregar nueva orden al inicio
+      orders.unshift(newOrder)
+      console.log("Órdenes después de agregar:", orders)
+      
+      // Guardar órdenes actualizadas
+      localStorage.setItem("user-orders", JSON.stringify(orders))
+      console.log("Órdenes guardadas en localStorage")
+      
+      // LIMPIAR CARRITO INMEDIATAMENTE
+      localStorage.removeItem("cart")
+      console.log("Carrito limpiado después de guardar orden")
+      
+      // Disparar evento
+      window.dispatchEvent(new CustomEvent("orders-updated", { detail: orders }))
+      window.dispatchEvent(new Event("storage"))
+      console.log("Evento 'orders-updated' y 'storage' disparados")
+      
+      setOrderSaved(true)
+    }
+  }
 
   useEffect(() => {
     // Redirigir si no está logueado
@@ -46,17 +99,21 @@ export default function CheckoutPage() {
         setCartItems(items)
         const totalAmount = items.reduce((sum: number, item: CartItem) => sum + (item.price * item.quantity), 0)
         setTotal(totalAmount)
+        
+        // Generar número de orden
+        const newOrderNumber = `ORD-${Date.now()}`
+        setOrderNumber(newOrderNumber)
+        
+        // Guardar la orden automáticamente al llegar a checkout
+        saveOrder(items, now, totalAmount, newOrderNumber)
       }
     }
-    
-    // Generar número de orden
-    setOrderNumber(`ORD-${Date.now()}`)
   }, [user, router])
 
   const handleContinue = () => {
-    // Limpiar carrito
-    localStorage.removeItem("cart")
-    window.dispatchEvent(new Event("storage"))
+    console.log("=== CHECKOUT: handleContinue ejecutándose ===")
+    console.log("Orden guardada y carrito ya fue limpiado")
+    
     // Redirigir a inicio
     router.push("/")
   }

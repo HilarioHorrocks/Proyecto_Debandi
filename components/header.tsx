@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, ShoppingCart, Menu, X, User, LogOut, Shield } from "lucide-react"
+import { Search, ShoppingCart, Menu, X, User, LogOut, Shield, Heart, Package } from "lucide-react"
 import { playfairDisplay, poppins } from "@/lib/fonts"
 import { useAuth } from "@/contexts/auth-context"
 import AuthModal from "./auth-modal"
@@ -69,14 +69,14 @@ export default function Header({ onSearch }: HeaderProps) {
           </nav>
 
           <div className="hidden md:flex items-center gap-4 flex-shrink-0 ml-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60 text-foreground" />
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
               <input
                 type="text"
                 placeholder="Buscar productos..."
                 value={searchValue}
                 onChange={handleSearch}
-                className="bg-white text-foreground pl-10 pr-4 py-2 rounded w-64 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="bg-gradient-to-r from-white to-gray-50 text-foreground pl-12 pr-5 py-2.5 rounded-full w-72 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0 border border-gray-200 hover:border-gray-300 transition-all placeholder:text-gray-400 shadow-sm hover:shadow-md"
               />
             </div>
             <Link href="/cart" className="relative p-2 hover:bg-primary-foreground/10 rounded transition">
@@ -86,6 +86,9 @@ export default function Header({ onSearch }: HeaderProps) {
                   {cartCount}
                 </span>
               )}
+            </Link>
+            <Link href="/favoritos" className="p-2 hover:bg-primary-foreground/10 rounded transition">
+              <Heart className="w-6 h-6" />
             </Link>
             
             {user ? (
@@ -116,6 +119,14 @@ export default function Header({ onSearch }: HeaderProps) {
                         Panel Admin
                       </Link>
                     )}
+                    <Link
+                      href="/ordenes"
+                      className="flex items-center gap-2 px-4 py-2 hover:bg-accent/10 transition"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      <Package className="w-4 h-4" />
+                      Historial Pedidos
+                    </Link>
                     <button
                       onClick={() => {
                         logout()
@@ -147,14 +158,14 @@ export default function Header({ onSearch }: HeaderProps) {
 
         {isMenuOpen && (
           <div className="md:hidden space-y-4 pb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60 text-foreground" />
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
               <input
                 type="text"
                 placeholder="Buscar productos..."
                 value={searchValue}
                 onChange={handleSearch}
-                className="bg-white text-foreground pl-10 pr-4 py-2 rounded w-full focus:outline-none"
+                className="bg-gradient-to-r from-white to-gray-50 text-foreground pl-12 pr-5 py-2.5 rounded-full w-full focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0 border border-gray-200 hover:border-gray-300 transition-all placeholder:text-gray-400 shadow-sm hover:shadow-md"
               />
             </div>
             <nav className="flex flex-col gap-2">
@@ -172,6 +183,10 @@ export default function Header({ onSearch }: HeaderProps) {
               <ShoppingCart className="w-5 h-5" />
               Carrito ({cartCount})
             </Link>
+            <Link href="/favoritos" className="flex items-center gap-2 py-2 hover:opacity-80 transition">
+              <Heart className="w-5 h-5" />
+              Mis Favoritos
+            </Link>
             
             {user ? (
               <div className="space-y-2 border-t pt-2">
@@ -182,6 +197,10 @@ export default function Header({ onSearch }: HeaderProps) {
                     Panel Admin
                   </Link>
                 )}
+                <Link href="/ordenes" className="flex items-center gap-2 py-2 hover:opacity-80 transition">
+                  <Package className="w-5 h-5" />
+                  Historial Pedidos
+                </Link>
                 <button
                   onClick={logout}
                   className="flex items-center gap-2 py-2 hover:opacity-80 transition w-full text-left"
