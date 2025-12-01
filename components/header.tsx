@@ -26,11 +26,19 @@ export default function Header({ onSearch }: HeaderProps) {
     const updateCartCount = () => {
       const cart = localStorage.getItem("cart")
       if (cart) {
-        const items = JSON.parse(cart)
-        if (Array.isArray(items)) {
-          const count = items.reduce((sum: number, item: any) => sum + item.quantity, 0)
-          setCartCount(count)
+        try {
+          const items = JSON.parse(cart)
+          if (Array.isArray(items) && items.length > 0) {
+            const count = items.reduce((sum: number, item: any) => sum + item.quantity, 0)
+            setCartCount(count)
+          } else {
+            setCartCount(0)
+          }
+        } catch {
+          setCartCount(0)
         }
+      } else {
+        setCartCount(0)
       }
     }
 
@@ -63,7 +71,7 @@ export default function Header({ onSearch }: HeaderProps) {
             <Link href="/listado" className={`px-3 py-2 hover:bg-primary-foreground/10 rounded transition ${poppins.className} text-sm font-medium`}>
               Listado De Productos
             </Link>
-            <Link href="#" className={`px-3 py-2 hover:bg-primary-foreground/10 rounded transition ${poppins.className} text-sm font-medium`}>
+            <Link href="/contacto" className={`px-3 py-2 hover:bg-primary-foreground/10 rounded transition ${poppins.className} text-sm font-medium`}>
               Contacto
             </Link>
           </nav>

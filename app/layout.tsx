@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from "@/contexts/auth-context"
 import { FavoritesProvider } from "@/contexts/favorites-context"
 import { Toaster } from "@/components/ui/toaster"
+import WelcomeHandler from "@/components/welcome-handler"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -29,6 +30,7 @@ export default function RootLayout({
           <FavoritesProvider>
             {children}
             <Toaster />
+            <WelcomeHandler />
           </FavoritesProvider>
         </AuthProvider>
         <Analytics />

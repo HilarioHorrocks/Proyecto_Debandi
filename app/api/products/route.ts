@@ -510,6 +510,26 @@ const PRODUCTS = [
       notas: "Requiere categorización",
     },
   },
+  {
+    id: 27,
+    name: "Taladro Percutor Profesional",
+    slug: "taladro-percutor-agotado",
+    description: "Taladro percutor de alta potencia (producto sin stock)",
+    price: 199.99,
+    originalPrice: 279.99,
+    category: "taladros",
+    image: "/logo-debandi.svg",
+    thumbnail: "/logo-debandi.svg",
+    rating: 4.9,
+    stock: 0,
+    brand: "Bosch",
+    specs: {
+      potencia: "1000W",
+      velocidad: "3000 RPM",
+      capacidad: "16mm",
+      peso: "2.2kg",
+    },
+  },
 ]
 
 export async function GET(request: NextRequest) {

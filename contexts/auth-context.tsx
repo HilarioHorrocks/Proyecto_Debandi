@@ -34,9 +34,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
+      } else {
+        // Si no hay sesión, limpiar carrito y favoritos
+        localStorage.removeItem("cart")
+        localStorage.removeItem("auth-token")
+        localStorage.removeItem("favorites")
+        const keys = Object.keys(localStorage)
+        keys.forEach(key => {
+          if (key.startsWith("favorites_user_")) {
+            localStorage.removeItem(key)
+          }
+        })
+        setUser(null)
       }
     } catch (error) {
       console.error("Error checking auth:", error)
+      // Si hay error, limpiar también
+      localStorage.removeItem("cart")
+      localStorage.removeItem("auth-token")
+      localStorage.removeItem("favorites")
+      setUser(null)
     } finally {
       setLoading(false)
     }
@@ -60,6 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data.token) {
       localStorage.setItem("auth-token", data.token)
     }
+    
+    // Disparar evento de bienvenida
+    window.dispatchEvent(new CustomEvent("user-logged-in", {
+      detail: { firstName: data.user.firstName }
+    }))
   }
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
@@ -82,9 +104,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await fetch("/api/auth/logout", { method: "POST" })
     setUser(null)
     localStorage.removeItem("auth-token")
+    // Limpiar carrito al cerrar sesión
+    localStorage.removeItem("cart")
     // Limpiar favoritos al cerrar sesión
     localStorage.removeItem("favorites")
+    // Limpiar favoritos por usuario
+    const keys = Object.keys(localStorage)
+    keys.forEach(key => {
+      if (key.startsWith("favorites_user_")) {
+        localStorage.removeItem(key)
+      }
+    })
     window.dispatchEvent(new CustomEvent("favorites-cleared"))
+    window.dispatchEvent(new Event("storage"))
   }
 
   return (

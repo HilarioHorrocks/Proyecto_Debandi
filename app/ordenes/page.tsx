@@ -192,7 +192,7 @@ export default function OrdersPage() {
       // Mostrar notificación de éxito con el total de unidades
       setNotification({
         type: 'success',
-        message: `✓ ${totalUnitsAdded} unidade${totalUnitsAdded !== 1 ? 's' : ''} agregada${totalUnitsAdded !== 1 ? 's' : ''} al carrito. Redirigiendo...`
+        message: ` ${totalUnitsAdded} unidad${totalUnitsAdded !== 1 ? 'es' : ''} agregada${totalUnitsAdded !== 1 ? 's' : ''} al carrito. Redirigiendo...`
       })
       
       // Redirigir al carrito después de 1.5 segundos
@@ -315,7 +315,7 @@ export default function OrdersPage() {
                             ${order.total.toFixed(2)}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {order.items.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0)} unidade{order.items.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) !== 1 ? "s" : ""}
+                            {order.items.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0)} unidad{order.items.reduce((sum: number, item: OrderItem) => sum + item.quantity, 0) !== 1 ? 'es' : ''}
                           </p>
                         </div>
                         <div className="ml-4">

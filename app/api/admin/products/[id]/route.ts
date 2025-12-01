@@ -5,9 +5,6 @@ const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "tu-secreto-super-seguro-cambialo"
 )
 
-// Importar PRODUCTS de la api pública
-import { PRODUCTS as PUBLIC_PRODUCTS } from "../../products/route"
-
 // Base de datos local para admin (sincronizada)
 let PRODUCTS = [
   { id: 1, name: "Taladro Profesional DeWalt 20V", slug: "taladro-dewalt-20v", description: "Taladro inalámbrico profesional", price: 149.99, originalPrice: 199.99, category: "taladros", image: "/professional-drill.jpg", stock: 50, brand: "DeWalt" },
@@ -36,6 +33,7 @@ let PRODUCTS = [
   { id: 24, name: "Bombilla LED 9W E27 Cálida", slug: "bombilla-led-9w-e27", description: "Bombilla LED cálida", price: 9.99, originalPrice: 14.99, category: "Hogar", image: "/logo-debandi.svg", stock: 300, brand: "Philips" },
   { id: 25, name: "Tornillos Cabeza Plana Caja 500pz", slug: "tornillos-cabeza-plana-500", description: "Caja de tornillos", price: 12.99, originalPrice: 18.99, category: "Tornilleria", image: "/logo-debandi.svg", stock: 50, brand: "Stanley" },
   { id: 26, name: "Producto Sin Categoría", slug: "producto-sin-categoria", description: "Producto pendiente", price: 5.99, originalPrice: 9.99, category: "Sin definir", image: "/logo-debandi.svg", stock: 25, brand: "Genérico" },
+  { id: 27, name: "Taladro Percutor Profesional", slug: "taladro-percutor-agotado", description: "Taladro percutor de alta potencia (producto sin stock)", price: 199.99, originalPrice: 279.99, category: "taladros", image: "/logo-debandi.svg", stock: 0, brand: "Bosch" },
 ]
 
 async function verifyAdmin(request: NextRequest) {

@@ -5,6 +5,7 @@ import { Star, ShoppingCart, Heart } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useFavorites } from "@/contexts/favorites-context"
 import AuthModal from "./auth-modal"
+import NotificationToast from "./notification-toast"
 
 interface ProductCardProps {
   product: {
@@ -21,6 +22,9 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationMessage, setNotificationMessage] = useState("")
+  const [notificationType, setNotificationType] = useState<"success" | "error">("success")
   const { user } = useAuth()
   const { isFavorite, addFavorite, removeFavorite } = useFavorites()
   const favorite = isFavorite(product.id)
@@ -64,6 +68,12 @@ export default function ProductCard({ product }: ProductCardProps) {
     localStorage.setItem("cart", JSON.stringify(items))
     window.dispatchEvent(new Event("storage"))
 
+    // Mostrar notificación
+    setNotificationMessage("Producto agregado al carrito")
+    setNotificationType("success")
+    setShowNotification(true)
+    setTimeout(() => setShowNotification(false), 2000)
+
     setTimeout(() => setIsAdding(false), 300)
   }
 
@@ -77,9 +87,16 @@ export default function ProductCard({ product }: ProductCardProps) {
     // Si está logueado, agregar o quitar de favoritos
     if (favorite) {
       removeFavorite(product.id)
+      setNotificationMessage("Eliminaste el producto de Mis favoritos")
+      setNotificationType("error")
     } else {
       addFavorite(product.id)
+      setNotificationMessage("Se agregó a Mis favoritos")
+      setNotificationType("success")
     }
+
+    setShowNotification(true)
+    setTimeout(() => setShowNotification(false), 3000)
   }
 
   return (
@@ -144,6 +161,15 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+
+      {/* Notificación elegante */}
+      <NotificationToast
+        message={notificationMessage}
+        type={notificationType}
+        isOpen={showNotification}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </div>
   )
 }

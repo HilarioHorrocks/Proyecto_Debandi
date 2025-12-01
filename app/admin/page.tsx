@@ -210,6 +210,7 @@ export default function AdminPage() {
           <TabsContent value="products" className="space-y-4">
             <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
               <h2 className="text-2xl font-semibold">Gestión de Productos</h2>
+              <h5>(sin funcionar para no romper la base de datos de productos)</h5>
               <Button onClick={() => setIsCreating(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nuevo Producto

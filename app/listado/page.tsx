@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
 import AuthModal from "@/components/auth-modal"
+import NotificationToast from "@/components/notification-toast"
 import { exportToPDF, exportToExcel } from "@/lib/export-utils"
 
 interface Product {
@@ -38,6 +39,8 @@ export default function ListadoProductos() {
   const [selectedProducts, setSelectedProducts] = useState<Map<number, SelectedProduct>>(new Map())
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
+  const [notificationMessage, setNotificationMessage] = useState("")
   const { user } = useAuth()
 
   const handleExportPDF = async () => {
@@ -154,7 +157,8 @@ export default function ListadoProductos() {
 
     // Limpiar selección
     setSelectedProducts(new Map())
-    alert("Productos agregados al carrito")
+    setNotificationMessage("Productos agregados al carrito")
+    setShowNotification(true)
   }
 
   const totalItems = Array.from(selectedProducts.values()).reduce((sum, item) => sum + item.quantity, 0)
@@ -366,6 +370,14 @@ export default function ListadoProductos() {
       <Footer />
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      
+      <NotificationToast
+        message={notificationMessage}
+        type="success"
+        isOpen={showNotification}
+        onClose={() => setShowNotification(false)}
+        duration={3000}
+      />
     </div>
   )
 }

@@ -6,7 +6,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { useFavorites } from "@/contexts/favorites-context"
 import { Button } from "@/components/ui/button"
-import { Heart, ShoppingCart, ArrowLeft } from "lucide-react"
+import { Heart, ShoppingCart, ArrowLeft, X } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface Product {
@@ -28,6 +28,11 @@ export default function FavoritesPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [notification, setNotification] = useState<{ show: boolean; message: string; type: "success" | "error" }>({
+    show: false,
+    message: "",
+    type: "success",
+  })
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -68,6 +73,16 @@ export default function FavoritesPage() {
 
     localStorage.setItem("cart", JSON.stringify(cart))
     window.dispatchEvent(new Event("storage"))
+
+    setNotification({
+      show: true,
+      message: "Producto agregado al carrito",
+      type: "success",
+    })
+
+    setTimeout(() => {
+      setNotification((prev) => ({ ...prev, show: false }))
+    }, 3000)
   }
 
   return (
@@ -172,6 +187,19 @@ export default function FavoritesPage() {
       </main>
 
       <Footer />
+
+      {/* Notificación Toast */}
+      {notification.show && (
+        <div className={`fixed top-24 right-4 z-50 px-4 py-3 rounded-lg shadow-lg border animate-in fade-in slide-in-from-top-2 duration-300 flex items-center justify-between gap-3 ${notification.type === "success" ? "bg-green-50 border-green-200 text-green-800" : "bg-red-50 border-red-200 text-red-800"}`}>
+          <span className="text-sm font-medium">{notification.message}</span>
+          <button
+            onClick={() => setNotification((prev) => ({ ...prev, show: false }))}
+            className="hover:opacity-70 transition"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

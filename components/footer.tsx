@@ -43,7 +43,7 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Soporte</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="hover:opacity-75 transition">
+                <Link href="/contacto" className="hover:opacity-75 transition">
                   Contacto
                 </Link>
               </li>
