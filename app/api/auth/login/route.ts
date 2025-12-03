@@ -1,104 +1,84 @@
 import { NextRequest, NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
-import { SignJWT } from "jose"
+import { AuthService } from "@/services/auth.service"
+import { validateData, loginSchema } from "@/lib/validators/schemas"
+import { loginRateLimiter, getClientIdentifier } from "@/lib/security/rate-limiter"
 
-// Simulación de base de datos - incluye usuarios por defecto
-const users = [
-  {
-    id: 1,
-    email: "admin@debandi.com",
-    passwordHash: "", // Se establecerá en la primera ejecución
-    firstName: "Admin",
-    lastName: "Debandi",
-    isAdmin: true,
-    createdAt: new Date(),
-  },
-  {
-    id: 2,
-    email: "cliente@debandi.com",
-    passwordHash: "", // Se establecerá en la primera ejecución
-    firstName: "Cliente",
-    lastName: "Debandi",
-    isAdmin: false,
-    createdAt: new Date(),
-  }
-]
-
-// Inicializar contraseñas de usuarios por defecto
-async function initDefaultPasswords() {
-  if (!users[0].passwordHash) {
-    users[0].passwordHash = await bcrypt.hash("admin123", 10)
-  }
-  if (!users[1].passwordHash) {
-    users[1].passwordHash = await bcrypt.hash("cliente123", 10)
-  }
-}
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "tu-secreto-super-seguro-cambialo"
-)
+const authService = new AuthService()
 
 export async function POST(request: NextRequest) {
-  try {
-    await initDefaultPasswords()
+  // Verificar rate limit
+  const clientId = getClientIdentifier(request)
+  
+  if (loginRateLimiter.isRateLimited(clientId)) {
+    const status = loginRateLimiter.getStatus(clientId)
+    const resetTime = status.resetTime ? new Date(status.resetTime).toISOString() : "unknown"
     
+    return NextResponse.json(
+      { 
+        error: "Demasiados intentos de inicio de sesión. Por favor, inténtelo más tarde.",
+        resetTime 
+      },
+      { status: 429 }
+    )
+  }
+
+  try {
     const body = await request.json()
-    const { email, password } = body
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email y contraseña son requeridos" },
-        { status: 400 }
-      )
-    }
+    // Validar datos de entrada
+    const validatedData = validateData(loginSchema, body)
 
-    // Buscar usuario
-    const user = users.find((u) => u.email === email)
-    if (!user) {
-      return NextResponse.json(
-        { error: "Credenciales inválidas" },
-        { status: 401 }
-      )
-    }
+    // Autenticar usuario
+    const { user, token } = await authService.login(validatedData)
 
-    // Verificar contraseña
-    const validPassword = await bcrypt.compare(password, user.passwordHash)
-    if (!validPassword) {
-      return NextResponse.json(
-        { error: "Credenciales inválidas" },
-        { status: 401 }
-      )
-    }
-
-    // Crear JWT token
-    const token = await new SignJWT({ 
-      userId: user.id, 
-      email: user.email,
-      isAdmin: user.isAdmin 
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("7d")
-      .sign(JWT_SECRET)
-
-    // Usuario sin contraseña
-    const { passwordHash: _, ...userWithoutPassword } = user
+    // Login exitoso - resetear el rate limit para esta IP
+    loginRateLimiter.reset(clientId)
 
     const response = NextResponse.json({
       message: "Login exitoso",
-      user: userWithoutPassword,
+      user,
       token,
     })
 
-    // Establecer cookie con el token
+    // Establecer cookie segura con el token
     response.cookies.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      httpOnly: true, // No accesible desde JavaScript
+      secure: process.env.NODE_ENV === "production", // Solo HTTPS en producción
+      sameSite: "lax", // Protección contra CSRF
       maxAge: 60 * 60 * 24 * 7, // 7 días
+      path: "/", // Disponible en toda la aplicación
     })
 
     return response
   } catch (error) {
+    // Registrar intento fallido
+    loginRateLimiter.recordAttempt(clientId)
+
+    // Manejo de errores específicos
+    if (error instanceof Error) {
+      switch (error.message) {
+        case "INVALID_CREDENTIALS":
+          return NextResponse.json(
+            { error: "Credenciales inválidas" },
+            { status: 401 }
+          )
+      }
+    }
+
+    // Error de validación
+    if (typeof error === "object" && error !== null && "type" in error) {
+      const validationError = error as { type: string; errors: unknown; message: string }
+      if (validationError.type === "VALIDATION_ERROR") {
+        return NextResponse.json(
+          { 
+            error: validationError.message,
+            details: validationError.errors 
+          },
+          { status: 400 }
+        )
+      }
+    }
+
     console.error("Error en login:", error)
     return NextResponse.json(
       { error: "Error al iniciar sesión" },

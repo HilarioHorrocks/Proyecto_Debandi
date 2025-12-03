@@ -1,57 +1,40 @@
 import { NextRequest, NextResponse } from "next/server"
-import { jwtVerify } from "jose"
+import { withAuth } from "@/lib/middlewares/auth.middleware"
+import { AuthService } from "@/services/auth.service"
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "tu-secreto-super-seguro-cambialo"
-)
-
-// Base de datos simulada (debe coincidir con login)
-const users = [
-  {
-    id: 1,
-    email: "admin@debandi.com",
-    firstName: "Admin",
-    lastName: "Debandi",
-    isAdmin: true,
-  },
-  {
-    id: 2,
-    email: "cliente@debandi.com",
-    firstName: "Cliente",
-    lastName: "Debandi",
-    isAdmin: false,
-  }
-]
+const authService = new AuthService()
 
 export async function GET(request: NextRequest) {
-  try {
-    const token = request.cookies.get("auth-token")?.value
+  return withAuth(request, async (req, userId) => {
+    try {
+      // Extraer el token
+      const token = req.cookies.get("auth-token")?.value || 
+                    req.headers.get("Authorization")?.substring(7)
 
-    if (!token) {
+      if (!token) {
+        return NextResponse.json(
+          { error: "Token no encontrado" },
+          { status: 401 }
+        )
+      }
+
+      // Obtener información del usuario actual
+      const user = await authService.getCurrentUser(token)
+
+      return NextResponse.json({ user })
+    } catch (error) {
+      if (error instanceof Error && error.message === "USER_NOT_FOUND") {
+        return NextResponse.json(
+          { error: "Usuario no encontrado" },
+          { status: 404 }
+        )
+      }
+
+      console.error("Error al obtener usuario:", error)
       return NextResponse.json(
-        { error: "No autenticado" },
-        { status: 401 }
+        { error: "Error al obtener información del usuario" },
+        { status: 500 }
       )
     }
-
-    // Verificar token
-    const { payload } = await jwtVerify(token, JWT_SECRET)
-    
-    // Buscar usuario
-    const user = users.find((u) => u.id === payload.userId)
-    if (!user) {
-      return NextResponse.json(
-        { error: "Usuario no encontrado" },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({ user })
-  } catch (error) {
-    console.error("Error al verificar token:", error)
-    return NextResponse.json(
-      { error: "Token inválido" },
-      { status: 401 }
-    )
-  }
+  })
 }

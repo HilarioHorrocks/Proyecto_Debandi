@@ -1,115 +1,109 @@
 import { NextRequest, NextResponse } from "next/server"
-import bcrypt from "bcryptjs"
-import { SignJWT } from "jose"
+import { AuthService } from "@/services/auth.service"
+import { validateData, registerSchema } from "@/lib/validators/schemas"
+import { registerRateLimiter, getClientIdentifier } from "@/lib/security/rate-limiter"
+import { isCommonPassword } from "@/lib/security/utils"
 
-// Base de datos simulada compartida
-const users = [
-  {
-    id: 1,
-    email: "admin@debandi.com",
-    passwordHash: "", // Se establecerá en la primera ejecución
-    firstName: "Admin",
-    lastName: "Debandi",
-    isAdmin: true,
-    createdAt: new Date(),
-  },
-  {
-    id: 2,
-    email: "cliente@debandi.com",
-    passwordHash: "", // Se establecerá en la primera ejecución
-    firstName: "Cliente",
-    lastName: "Debandi",
-    isAdmin: false,
-    createdAt: new Date(),
-  }
-]
-
-// Inicializar contraseñas de usuarios por defecto
-async function initDefaultPasswords() {
-  if (!users[0].passwordHash) {
-    users[0].passwordHash = await bcrypt.hash("admin123", 10)
-  }
-  if (!users[1].passwordHash) {
-    users[1].passwordHash = await bcrypt.hash("cliente123", 10)
-  }
-}
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "tu-secreto-super-seguro-cambialo"
-)
+const authService = new AuthService()
 
 export async function POST(request: NextRequest) {
-  try {
-    await initDefaultPasswords()
+  // Verificar rate limit
+  const clientId = getClientIdentifier(request)
+  
+  if (registerRateLimiter.isRateLimited(clientId)) {
+    const status = registerRateLimiter.getStatus(clientId)
+    const resetTime = status.resetTime ? new Date(status.resetTime).toISOString() : "unknown"
     
+    return NextResponse.json(
+      { 
+        error: "Demasiados intentos de registro. Por favor, inténtelo más tarde.",
+        resetTime 
+      },
+      { status: 429 }
+    )
+  }
+
+  try {
     const body = await request.json()
-    const { email, password, firstName, lastName } = body
 
-    // Validaciones
-    if (!email || !password) {
+    // Validar datos de entrada
+    const validatedData = validateData(registerSchema, body)
+
+    // Verificar si la contraseña es demasiado común
+    if (isCommonPassword(validatedData.password)) {
+      registerRateLimiter.recordAttempt(clientId)
       return NextResponse.json(
-        { error: "Email y contraseña son requeridos" },
+        { error: "La contraseña es demasiado común. Por favor, elija una más segura." },
         { status: 400 }
       )
     }
 
-    // Verificar si el usuario ya existe
-    const existingUser = users.find((u) => u.email === email)
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "El email ya está registrado" },
-        { status: 400 }
-      )
-    }
+    // Registrar usuario
+    const { user, token } = await authService.register(validatedData)
 
-    // Hash de la contraseña
-    const passwordHash = await bcrypt.hash(password, 10)
-
-    // Crear usuario
-    const newUser = {
-      id: users.length + 1,
-      email,
-      passwordHash,
-      firstName: firstName || "",
-      lastName: lastName || "",
-      isAdmin: false,
-      createdAt: new Date(),
-    }
-
-    users.push(newUser)
-
-    // Crear JWT token
-    const token = await new SignJWT({ 
-      userId: newUser.id, 
-      email: newUser.email,
-      isAdmin: newUser.isAdmin 
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("7d")
-      .sign(JWT_SECRET)
-
-    // Retornar usuario sin la contraseña
-    const { passwordHash: _, ...userWithoutPassword } = newUser
+    // Registro exitoso - resetear el rate limit para esta IP
+    registerRateLimiter.reset(clientId)
 
     const response = NextResponse.json(
-      { 
+      {
         message: "Usuario registrado exitosamente",
-        user: userWithoutPassword,
-        token
+        user,
+        token,
       },
       { status: 201 }
     )
 
-    // Establecer cookie con el token
+    // Establecer cookie segura con el token
     response.cookies.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60,
+      httpOnly: true, // No accesible desde JavaScript
+      secure: process.env.NODE_ENV === "production", // Solo HTTPS en producción
+      sameSite: "lax", // Protección contra CSRF
+      maxAge: 60 * 60 * 24 * 7, // 7 días
+      path: "/", // Disponible en toda la aplicación
     })
 
     return response
   } catch (error) {
+    // Registrar intento fallido
+    registerRateLimiter.recordAttempt(clientId)
+
+    // Manejo de errores específicos
+    if (error instanceof Error) {
+      switch (error.message) {
+        case "EMAIL_ALREADY_EXISTS":
+          return NextResponse.json(
+            { error: "El email ya está registrado" },
+            { status: 400 }
+          )
+        case "PASSWORD_TOO_SHORT":
+          return NextResponse.json(
+            { error: "La contraseña debe tener al menos 8 caracteres" },
+            { status: 400 }
+          )
+        case "PASSWORD_TOO_WEAK":
+          return NextResponse.json(
+            { 
+              error: "La contraseña debe contener al menos una mayúscula, una minúscula y un número" 
+            },
+            { status: 400 }
+          )
+      }
+    }
+
+    // Error de validación
+    if (typeof error === "object" && error !== null && "type" in error) {
+      const validationError = error as { type: string; errors: unknown; message: string }
+      if (validationError.type === "VALIDATION_ERROR") {
+        return NextResponse.json(
+          { 
+            error: validationError.message,
+            details: validationError.errors 
+          },
+          { status: 400 }
+        )
+      }
+    }
+
     console.error("Error en registro:", error)
     return NextResponse.json(
       { error: "Error al registrar usuario" },
