@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { useFavorites } from "@/contexts/favorites-context"
 import AuthModal from "./auth-modal"
 import NotificationToast from "./notification-toast"
+import ProductPreviewModal from "./product-preview-modal"
 
 interface ProductCardProps {
   product: {
@@ -16,6 +17,8 @@ interface ProductCardProps {
     image: string
     rating: number
     stock: number
+    brand: string
+    category: string
   }
 }
 
@@ -25,6 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState("")
   const [notificationType, setNotificationType] = useState<"success" | "error">("success")
+  const [showPreview, setShowPreview] = useState(false)
   const { user } = useAuth()
   const { isFavorite, addFavorite, removeFavorite } = useFavorites()
   const favorite = isFavorite(product.id)
@@ -101,7 +105,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
-      <div className="relative h-48 bg-muted overflow-hidden">
+      <div 
+        className="relative h-48 bg-muted overflow-hidden cursor-pointer"
+        onClick={() => setShowPreview(true)}
+      >
         <img
           src={product.image || "/placeholder.svg"}
           alt={product.name}
@@ -113,7 +120,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         <button
-          onClick={toggleFavorite}
+          onClick={(e) => {
+            e.stopPropagation()
+            toggleFavorite()
+          }}
           className="absolute top-3 left-3 bg-white rounded-full p-2 hover:bg-red-50 transition"
           title={!user ? "Inicia sesión para agregar a favoritos" : favorite ? "Quitar de favoritos" : "Agregar a favoritos"}
         >
@@ -127,7 +137,12 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{product.name}</h3>
+        <h3 
+          className="font-semibold text-foreground line-clamp-2 mb-2 cursor-pointer hover:text-primary transition"
+          onClick={() => setShowPreview(true)}
+        >
+          {product.name}
+        </h3>
 
         <div className="flex items-center gap-2 mb-3">
           <div className="flex items-center">
@@ -169,6 +184,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         isOpen={showNotification}
         onClose={() => setShowNotification(false)}
         duration={3000}
+      />
+
+      {/* Modal de previsualizador */}
+      <ProductPreviewModal
+        product={product}
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
       />
     </div>
   )

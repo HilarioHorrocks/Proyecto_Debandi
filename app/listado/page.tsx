@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { useAuth } from "@/contexts/auth-context"
 import AuthModal from "@/components/auth-modal"
 import NotificationToast from "@/components/notification-toast"
+import ProductPreviewModal from "@/components/product-preview-modal"
 import { exportToPDF, exportToExcel } from "@/lib/export-utils"
 
 interface Product {
@@ -22,6 +23,7 @@ interface Product {
   image: string
   stock: number
   brand: string
+  rating?: number
 }
 
 interface SelectedProduct {
@@ -41,6 +43,7 @@ export default function ListadoProductos() {
   const [isExporting, setIsExporting] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [notificationMessage, setNotificationMessage] = useState("")
+  const [selectedProductForPreview, setSelectedProductForPreview] = useState<Product | null>(null)
   const { user } = useAuth()
 
   const handleExportPDF = async () => {
@@ -245,18 +248,29 @@ export default function ListadoProductos() {
                               onCheckedChange={() => handleSelectProduct(product)}
                             />
                           </td>
-                          <td className="py-3 px-4">
+                          <td 
+                            className="py-3 px-4 cursor-pointer hover:text-primary transition"
+                            onClick={() => setSelectedProductForPreview(product)}
+                          >
                             <div className="flex items-center gap-2">
                               <img
                                 src={product.image}
                                 alt={product.name}
                                 className="w-10 h-10 object-cover rounded"
                               />
-                              <span className="font-medium">{product.name}</span>
+                              <span className="font-medium hover:underline">{product.name}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-4">{product.brand}</td>
-                          <td className="text-right py-3 px-4 font-semibold">
+                          <td 
+                            className="py-3 px-4 cursor-pointer hover:text-primary transition"
+                            onClick={() => setSelectedProductForPreview(product)}
+                          >
+                            {product.brand}
+                          </td>
+                          <td 
+                            className="text-right py-3 px-4 font-semibold cursor-pointer hover:text-primary transition"
+                            onClick={() => setSelectedProductForPreview(product)}
+                          >
                             ${product.price.toFixed(2)}
                           </td>
                           <td className="py-3 px-4">
@@ -378,6 +392,15 @@ export default function ListadoProductos() {
         onClose={() => setShowNotification(false)}
         duration={3000}
       />
+
+      {/* Modal de previsualizador */}
+      {selectedProductForPreview && (
+        <ProductPreviewModal
+          product={selectedProductForPreview}
+          isOpen={!!selectedProductForPreview}
+          onClose={() => setSelectedProductForPreview(null)}
+        />
+      )}
     </div>
   )
 }
